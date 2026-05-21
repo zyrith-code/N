@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dodge Ball Neon</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:sans-serif;
+}
+
+body{
+    overflow:hidden;
+    background:#050816;
+    color:white;
+}
+
+/* MENU */
+#menu{
+    width:100%;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:
+    radial-gradient(circle,#0d1b4d,#02030a);
+}
+
+.menu-card{
+    width:340px;
+    padding:35px;
+    border-radius:30px;
+    text-align:center;
+    background:rgba(255,255,255,0.05);
+    border:2px solid #00aeff;
+    box-shadow:0 0 35px #00aeff55;
+    backdrop-filter:blur(10px);
+}
+
+.title{
+    font-size:60px;
+    font-weight:bold;
+    line-height:70px;
+    margin-bottom:15px;
+}
+
+.title span:nth-child(1){
+    color:#00aeff;
+    text-shadow:0 0 20px #00aeff;
+}
+
+.title span:nth-child(2){
+    color:#ff2a4d;
+    text-shadow:0 0 20px #ff2a4d;
+}
+
+.desc{
+    font-size:20px;
+    opacity:0.8;
+    margin-bottom:25px;
+}
+
+#playBtn{
+    width:100%;
+    padding:18px;
+    border:none;
+    border-radius:18px;
+    background:
+    linear-gradient(45deg,#00aeff,#00ff95);
+    color:white;
+    font-size:28px;
+    font-weight:bold;
+    cursor:pointer;
+    box-shadow:0 0 25px #00aeff;
+    transition:0.2s;
+}
+
+#playBtn:hover{
+    transform:scale(1.05);
+}
+
+/* GAME */
+#game{
+    display:none;
+    width:100%;
+    height:100vh;
+    position:relative;
+    overflow:hidden;
+    background:
+    linear-gradient(#02030a,#081633);
+}
+
+/* SCORE */
+#score{
+    position:absolute;
+    top:15px;
+    left:15px;
+    font-size:32px;
+    font-weight:bold;
+    z-index:10;
+    color:#ffd500;
+    text-shadow:0 0 15px #ffd500;
+}
+
+/* HIGHSCORE */
+#highscore{
+    position:absolute;
+    top:60px;
+    left:15px;
+    font-size:24px;
+    font-weight:bold;
+    z-index:10;
+    color:cyan;
+    text-shadow:0 0 15px cyan;
+}
+
+/* PLAYER */
+#player{
+    width:90px;
+    position:absolute;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:5;
+    transition:0.1s;
+}
+
+/* BALL */
+.ball{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    position:absolute;
+    top:-70px;
+    background:red;
+    box-shadow:
+    0 0 20px red,
+    0 0 40px red;
+}
+
+/* GAME OVER */
+#gameover{
+    display:none;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(0,0,0,0.85);
+    border:2px solid red;
+    box-shadow:0 0 35px red;
+    padding:35px;
+    border-radius:30px;
+    text-align:center;
+    z-index:20;
+}
+
+#gameover h1{
+    color:#ff2a4d;
+    font-size:55px;
+    text-shadow:0 0 20px red;
+}
+
+#gameover p{
+    font-size:28px;
+    margin-top:20px;
+}
+
+#restartBtn{
+    margin-top:25px;
+    padding:15px 30px;
+    border:none;
+    border-radius:18px;
+    font-size:24px;
+    font-weight:bold;
+    cursor:pointer;
+    background:
+    linear-gradient(45deg,#00ff95,#00aeff);
+    color:white;
+    box-shadow:0 0 20px cyan;
+}
+
+/* FLOOR */
+.floor{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    height:8px;
+    background:#00aeff;
+    box-shadow:0 0 20px #00aeff;
+}
+</style>
+</head>
+<body>
+
+<!-- MENU -->
+<div id="menu">
+
+    <div class="menu-card">
+
+        <div class="title">
+            <span>DODGE</span><br>
+            <span>BALL</span>
+        </div>
+
+        <div class="desc">
+            Hindari bola merahnya bot dongo!
+        </div>
+
+        <button id="playBtn">
+            ▶ PLAY
+        </button>
+
+    </div>
+
+</div>
+
+<!-- GAME -->
+<div id="game">
+
+    <div id="score">
+        Score: 0
+    </div>
+
+    <div id="highscore">
+        High Score: 0
+    </div>
+
+    <!-- PLAYER -->
+    <img
+    id="player"
+    src="pael.png"
+    data-normal="pael.png"
+    data-dead="paelputih.jpg"
+    >
+
+    <div class="floor"></div>
+
+    <!-- GAME OVER -->
+    <div id="gameover">
+
+        <h1>bot</h1>
+
+        <p id="finalScore">
+            Score: 0
+        </p>
+
+        <button id="restartBtn">
+            MAIN LAGI
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+const menu =
+document.getElementById("menu");
+
+const game =
+document.getElementById("game");
+
+const playBtn =
+document.getElementById("playBtn");
+
+const player =
+document.getElementById("player");
+
+const scoreText =
+document.getElementById("score");
+
+const highscoreText =
+document.getElementById("highscore");
+
+const gameover =
+document.getElementById("gameover");
+
+const finalScore =
+document.getElementById("finalScore");
+
+const restartBtn =
+document.getElementById("restartBtn");
+
+let score = 0;
+let playing = false;
+
+let playerX =
+window.innerWidth / 2;
+
+/* HIGH SCORE */
+let highscore =
+localStorage.getItem("dodgeHighscore") || 0;
+
+highscoreText.innerText =
+"High Score: " + highscore;
+
+/* START GAME */
+playBtn.onclick = () => {
+
+    menu.style.display =
+    "none";
+
+    game.style.display =
+    "block";
+
+    playing = true;
+
+    spawnBall();
+
+    startScore();
+};
+
+/* GERAK PLAYER */
+document.addEventListener(
+"mousemove",
+(e) => {
+
+    if(!playing) return;
+
+    playerX = e.clientX;
+
+    wrapPlayer();
+});
+
+/* TOUCH HP */
+document.addEventListener(
+"touchmove",
+(e) => {
+
+    if(!playing) return;
+
+    playerX =
+    e.touches[0].clientX;
+
+    wrapPlayer();
+});
+
+/* WRAP */
+function wrapPlayer(){
+
+    if(playerX >
+    window.innerWidth){
+
+        playerX = 0;
+    }
+
+    if(playerX < 0){
+
+        playerX =
+        window.innerWidth;
+    }
+
+    player.style.left =
+    playerX + "px";
+}
+
+/* SCORE */
+function startScore(){
+
+    setInterval(() => {
+
+        if(playing){
+
+            score++;
+
+            scoreText.innerText =
+            "Score: " + score;
+        }
+
+    },1000);
+}
+
+/* SPAWN BALL */
+function spawnBall(){
+
+    if(!playing) return;
+
+    const ball =
+    document.createElement("div");
+
+    ball.classList.add("ball");
+
+    ball.style.left =
+    Math.random() *
+    (window.innerWidth - 70)
+    + "px";
+
+    game.appendChild(ball);
+
+    let y = -70;
+
+    /* lebih santai */
+    let speed =
+    3 + Math.random() * 2;
+
+    const fall =
+    setInterval(() => {
+
+        if(!playing){
+
+            clearInterval(fall);
+
+            ball.remove();
+
+            return;
+        }
+
+        y += speed;
+
+        ball.style.top =
+        y + "px";
+
+        /* COLLISION */
+        const ballRect =
+        ball.getBoundingClientRect();
+
+        const playerRect =
+        player.getBoundingClientRect();
+
+        if(
+            ballRect.left <
+            playerRect.right &&
+
+            ballRect.right >
+            playerRect.left &&
+
+            ballRect.top <
+            playerRect.bottom &&
+
+            ballRect.bottom >
+            playerRect.top
+        ){
+
+            endGame();
+        }
+
+        if(y >
+        window.innerHeight){
+
+            clearInterval(fall);
+
+            ball.remove();
+        }
+
+    },16);
+
+    /* bola gak terlalu banyak */
+    setTimeout(spawnBall,1200);
+}
+
+/* GAME OVER */
+function endGame(){
+
+    playing = false;
+
+    /* ganti gambar kalah */
+    player.src =
+    player.dataset.dead;
+
+    /* HIGH SCORE */
+    if(score > highscore){
+
+        highscore = score;
+
+        localStorage.setItem(
+            "dodgeHighscore",
+            highscore
+        );
+
+        highscoreText.innerText =
+        "High Score: " + highscore;
+    }
+
+    finalScore.innerText =
+    "Score: " + score;
+
+    gameover.style.display =
+    "block";
+}
+
+/* RESTART */
+restartBtn.onclick = () => {
+
+    location.reload();
+};
+</script>
+
+</body>
+</html>
